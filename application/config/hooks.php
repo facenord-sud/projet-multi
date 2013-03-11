@@ -10,7 +10,12 @@
 |
 */
 
-
+$hook['post_controller'][] = array(
+                                'class'    => 'TwiggyView',
+                                'function' => 'display',
+                                'filename' => 'TwiggyView.php',
+                                'filepath' => 'hooks',
+                                );
 
 /* End of file hooks.php */
 /* Location: ./application/config/hooks.php */

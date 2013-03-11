@@ -16,7 +16,10 @@
  * @copyright 			Copyright (c) 2012 Edmundas Kondrašovas <as@edmundask.lt>
  */
 
-if(!defined('TWIGGY_ROOT')) define('TWIGGY_ROOT', dirname(__DIR__));
+$dir = explode('/', $_SERVER['SCRIPT_FILENAME']);
+unset($dir[count($dir)-1]);
+
+if(!defined('TWIGGY_ROOT')) define('TWIGGY_ROOT', implode('/', $dir).'/sparks/Twiggy/0.8.5');
 
 require_once(TWIGGY_ROOT . '/vendor/Twig/lib/Twig/Autoloader.php');
 Twig_Autoloader::register();
@@ -576,5 +579,13 @@ class Twiggy
 
 		return FALSE;
 	}
+        
+        public function description($description) {
+            $this->meta('description', $description);
+        }
+        
+        public function keyWords($keyWords) {
+            $this->meta('keyWords', $keyWords);
+        }
 }
 // End Class
