@@ -16,10 +16,8 @@ class MY_Controller extends CI_Controller{
         parent::__construct();
         
         $this->load->spark('Twiggy/0.8.5');
-        $this->twiggy->register_function('anchor');
         
         $this->twiggy->title('Le magazine des étudiants');
-        
         
     }
 }

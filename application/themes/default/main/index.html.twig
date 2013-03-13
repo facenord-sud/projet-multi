@@ -1,5 +1,10 @@
-{%extends "main/template/index.html.twig"%}
+{%extends _layout%}
 
-{%block body%}
-    {{anchor('main/index', 'salut')}}
+{%block nav%}{%endblock%}
+
+{%block content%}
+<p>La page d'accueil du site. A voir comment on la fait. Comme une "une" de journal?</p>
+<p>{{anchor('rubrique/index', 'Entrer dans le site')}}</p>
 {%endblock%}
+{%block aside%}{%endblock%}
+{%block footer%}{%endblock%}

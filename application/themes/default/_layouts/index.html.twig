@@ -8,10 +8,69 @@
         <title>{{title}}</title>
         <meta name="keywords" content="{%block keywords%}étudiants, magazine, science de la communication{%endblock%}"/>
         <meta name="description" content="{%block description%}Le magazine des étudiants en science de la communication{%endblock%}"/>
-        
+        {{css('index.css')}}
     </head>
     <body>
-        {%block body%}
-        {%endblock%}
-        </body>
-    </html>
+        {%block header%}
+            <header>
+                <h2>{{anchor('main/index', 'Le Journal')}}</h2>
+                <div id="contact">{{anchor('main/contact','Contact')}}</div>
+            </header>
+            {%endblock%}
+            
+            {%block nav%}
+            <nav>
+                <ul id="rubrique">
+                    <li id="accueil">{{anchor('rubrique/index','Accueil')}}</li>
+                    <li>{{anchor('rubrique/index/1', 'Rubrique 1')}}</li>
+                    <li>{{anchor('rubrique/index/2', 'Rubrique 2')}}</li>
+                    <li>{{anchor('rubrique/index/3', 'Rubrique 3')}}</li>
+                </ul>
+                <ul id="sub-rubrique">
+                    <li>{{anchor('rubrique/index/1/1', 'sous-rubrique 1')}}</li>
+                    <li>{{anchor('rubrique/index/1/2', 'sous-rubrique 2')}}</li>
+                    <li>{{anchor('rubrique/index/1/3', 'sous-rubrique 3')}}</li>
+
+                </ul>
+            </nav>
+            {%endblock%}
+            
+            {%block main%}
+            <div id="main">
+                <div id ="content">
+                 {%block content%}
+                 {%endblock%}
+                    </div>
+                {%block aside%}
+                    <div id="aside">
+                        <aside>
+                            <h4>News</h4>
+                            <ul>
+                                <li>Une premeière news</li>
+                                <li>Une deuxième news</li>
+                                <li>Une troisième news</li>
+                            </ul>
+                        </aside>
+                        <aside>
+                            <h4>Agenda</h4>
+                            <ul>
+                                <li>Un événement</li>
+                                <li>Un événement</li>
+                                <li>Un événement</li>
+                            </ul>
+                        </aside>
+                    </div>
+                {%endblock%}
+                </div>
+            {%endblock%}
+            
+            {%block footer%}
+                <footer>
+                    <address>
+                        <p>Crée par numa, mara, martina, aurélia et amandine</p>
+                        Nous {{anchor('main/contact', 'contacter')}}
+                    </address>
+                </footer>
+            {%endblock%}
+            </body>
+        </html>

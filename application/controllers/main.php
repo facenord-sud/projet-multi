@@ -9,7 +9,11 @@ class Main extends MY_Controller {
      * 
      */
     public function index() {
-        $this->twiggy->description('asdas');
+        
+    }
+
+    public function contact() {
+        
     }
 
 }
