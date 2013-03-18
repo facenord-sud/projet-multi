@@ -14,6 +14,9 @@ class TwiggyView {
         $CI = & get_instance();
         $class = $CI->router->class;
         $method = $CI->router->method;
+        if(!isset($CI->twiggy)) {
+            return;
+        }
         $CI->twiggy->display($class . '/' . $method);
     }
 

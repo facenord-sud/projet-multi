@@ -1,4 +1,7 @@
-<?php  if (! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+
+if (!defined('BASEPATH'))
+    exit('No direct script access allowed');
 /**
  * Sparks
  *
@@ -23,8 +26,8 @@
  * @category	Loader
  * @link		http://codeigniter.com/user_guide/libraries/loader.html
  */
-class MY_Loader extends CI_Loader
-{
+class MY_Loader extends CI_Loader {
+
     /**
      * Keep track of which sparks are loaded. This will come in handy for being
      *  speedy about loading files later.
@@ -43,15 +46,12 @@ class MY_Loader extends CI_Loader
     /**
      * Constructor. Define SPARKPATH if it doesn't exist, initialize parent
      */
-    function __construct()
-    {
-        if(!defined('SPARKPATH'))
-        {
+    function __construct() {
+        if (!defined('SPARKPATH')) {
             define('SPARKPATH', 'sparks/');
         }
 
-        $this->_is_lt_210 = (is_callable(array('CI_Loader', 'ci_autoloader'))
-                               || is_callable(array('CI_Loader', '_ci_autoloader')));
+        $this->_is_lt_210 = (is_callable(array('CI_Loader', 'ci_autoloader')) || is_callable(array('CI_Loader', '_ci_autoloader')));
 
         parent::__construct();
     }
@@ -62,12 +62,10 @@ class MY_Loader extends CI_Loader
      *  can avoid the awkward version-specific logic.
      * @return Loader
      */
-    function initialize()
-    {
+    function initialize() {
         parent::initialize();
 
-        if(!$this->_is_lt_210)
-        {
+        if (!$this->_is_lt_210) {
             $this->ci_autoloader();
         }
 
@@ -85,12 +83,9 @@ class MY_Loader extends CI_Loader
      *   )
      * @return <type>
      */
-    function spark($spark, $autoload = array())
-    {
-        if(is_array($spark))
-        {
-            foreach($spark as $s)
-            {
+    function spark($spark, $autoload = array()) {
+        if (is_array($spark)) {
+            foreach ($spark as $s) {
                 $this->spark($s);
             }
         }
@@ -99,42 +94,38 @@ class MY_Loader extends CI_Loader
         $spark = rtrim($spark, '/');
 
         $spark_path = SPARKPATH . $spark . '/';
-        $parts      = explode('/', $spark);
+        $parts = explode('/', $spark);
         $spark_slug = strtolower($parts[0]);
 
         # If we've already loaded this spark, bail
-        if(array_key_exists($spark_slug, $this->_ci_loaded_sparks))
-        {
+        if (array_key_exists($spark_slug, $this->_ci_loaded_sparks)) {
             return true;
         }
 
         # Check that it exists. CI Doesn't check package existence by itself
-        if(!file_exists($spark_path))
-        {
+        if (!file_exists($spark_path)) {
             show_error("Cannot find spark path at $spark_path");
         }
 
-        if(count($parts) == 2)
-        {
+        if (count($parts) == 2) {
             $this->_ci_loaded_sparks[$spark_slug] = $spark;
         }
 
         $this->add_package_path($spark_path);
 
-        foreach($autoload as $type => $read)
-        {
-            if($type == 'library')
+        foreach ($autoload as $type => $read) {
+            if ($type == 'library')
                 $this->library($read);
-            elseif($type == 'model')
+            elseif ($type == 'model')
                 $this->model($read);
-            elseif($type == 'config')
+            elseif ($type == 'config')
                 $this->config($read);
-            elseif($type == 'helper')
+            elseif ($type == 'helper')
                 $this->helper($read);
-            elseif($type == 'view')
+            elseif ($type == 'view')
                 $this->view($read);
             else
-                show_error ("Could not autoload object of type '$type' ($read) for spark $spark");
+                show_error("Could not autoload object of type '$type' ($read) for spark $spark");
         }
 
         // Looks for a spark's specific autoloader
@@ -143,123 +134,118 @@ class MY_Loader extends CI_Loader
         return true;
     }
 
-	/**
-	 * Pre-CI 2.0.3 method for backward compatility.
-	 *
-	 * @param null $basepath
-	 * @return void
-	 */
-	function _ci_autoloader($basepath = NULL)
-	{
-		$this->ci_autoloader($basepath);
-	}
+    /**
+     * Pre-CI 2.0.3 method for backward compatility.
+     *
+     * @param null $basepath
+     * @return void
+     */
+    function _ci_autoloader($basepath = NULL) {
+        $this->ci_autoloader($basepath);
+    }
 
-	/**
-	 * Specific Autoloader (99% ripped from the parent)
-	 *
-	 * The config/autoload.php file contains an array that permits sub-systems,
-	 * libraries, and helpers to be loaded automatically.
-	 *
-	 * @param array|null $basepath
-	 * @return void
-	 */
-	function ci_autoloader($basepath = NULL)
-	{
-        if($basepath !== NULL)
-        {
-            $autoload_path = $basepath.'config/autoload'.EXT;
-        }
-        else
-        {
-            $autoload_path = APPPATH.'config/autoload'.EXT;
+    /**
+     * Specific Autoloader (99% ripped from the parent)
+     *
+     * The config/autoload.php file contains an array that permits sub-systems,
+     * libraries, and helpers to be loaded automatically.
+     *
+     * @param array|null $basepath
+     * @return void
+     */
+    function ci_autoloader($basepath = NULL) {
+        if ($basepath !== NULL) {
+            $autoload_path = $basepath . 'config/autoload' . EXT;
+        } else {
+            $autoload_path = APPPATH . 'config/autoload' . EXT;
         }
 
-        if(! file_exists($autoload_path))
-        {
+        if (!file_exists($autoload_path)) {
             return FALSE;
         }
 
-		include($autoload_path);
+        include($autoload_path);
 
-		if ( ! isset($autoload))
-		{
-			return FALSE;
-		}
+        if (!isset($autoload)) {
+            return FALSE;
+        }
 
-        if($this->_is_lt_210 || $basepath !== NULL)
-        {
+        if ($this->_is_lt_210 || $basepath !== NULL) {
             // Autoload packages
-            if (isset($autoload['packages']))
-            {
-                foreach ($autoload['packages'] as $package_path)
-                {
+            if (isset($autoload['packages'])) {
+                foreach ($autoload['packages'] as $package_path) {
                     $this->add_package_path($package_path);
                 }
             }
         }
 
         // Autoload sparks
-		if (isset($autoload['sparks']))
-		{
-			foreach ($autoload['sparks'] as $spark)
-			{
-				$this->spark($spark);
-			}
-		}
+        if (isset($autoload['sparks'])) {
+            foreach ($autoload['sparks'] as $spark) {
+                $this->spark($spark);
+            }
+        }
 
-        if($this->_is_lt_210 || $basepath !== NULL)
-        {
-            if (isset($autoload['config']))
-            {
+        if ($this->_is_lt_210 || $basepath !== NULL) {
+            if (isset($autoload['config'])) {
                 // Load any custom config file
-                if (count($autoload['config']) > 0)
-                {
-                    $CI =& get_instance();
-                    foreach ($autoload['config'] as $key => $val)
-                    {
+                if (count($autoload['config']) > 0) {
+                    $CI = & get_instance();
+                    foreach ($autoload['config'] as $key => $val) {
                         $CI->config->load($val);
                     }
                 }
             }
 
             // Autoload helpers and languages
-            foreach (array('helper', 'language') as $type)
-            {
-                if (isset($autoload[$type]) AND count($autoload[$type]) > 0)
-                {
+            foreach (array('helper', 'language') as $type) {
+                if (isset($autoload[$type]) AND count($autoload[$type]) > 0) {
                     $this->$type($autoload[$type]);
                 }
             }
 
             // A little tweak to remain backward compatible
             // The $autoload['core'] item was deprecated
-            if ( ! isset($autoload['libraries']) AND isset($autoload['core']))
-            {
+            if (!isset($autoload['libraries']) AND isset($autoload['core'])) {
                 $autoload['libraries'] = $autoload['core'];
             }
 
             // Load libraries
-            if (isset($autoload['libraries']) AND count($autoload['libraries']) > 0)
-            {
+            if (isset($autoload['libraries']) AND count($autoload['libraries']) > 0) {
                 // Load the database driver.
-                if (in_array('database', $autoload['libraries']))
-                {
+                if (in_array('database', $autoload['libraries'])) {
                     $this->database();
                     $autoload['libraries'] = array_diff($autoload['libraries'], array('database'));
                 }
 
                 // Load all other libraries
-                foreach ($autoload['libraries'] as $item)
-                {
+                foreach ($autoload['libraries'] as $item) {
                     $this->library($item);
                 }
             }
 
             // Autoload models
-            if (isset($autoload['model']))
-            {
+            if (isset($autoload['model'])) {
                 $this->model($autoload['model']);
             }
         }
-	}
+    }
+    
+    /**
+     * permet l'utilisation de l'orm
+     * @author Numa de Montmollin <facenord.sud@gmail.com>
+     */
+    public function orm() {
+        $CI =& get_instance();
+        $this->model('orm/factory/factory2', 'factory2');
+        $this->model($CI->factory2->getPlugin()->getDbDriver(), 'driver');
+        $this->model($CI->factory2->getPlugin()->getDbForge(), 'forge');
+        $this->model($CI->factory2->getPlugin()->getQueryBuilder(), 'query');
+        $this->model('orm/dmo', 'dmo');
+        
+        $CI->forge->setDriver($CI->driver);
+        $CI->query->setDBForge($CI->forge);
+        $CI->dmo->setQueryBuilder($CI->query);
+    }
+
 }

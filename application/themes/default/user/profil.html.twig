@@ -1,0 +1,18 @@
+{%extends "user/template/index.html.twig"%}
+{% block content %}
+<h1>Votre profil:</h1>
+<h3>
+    <ul>
+        <li>pseudo: {{user.username}}</li>
+        <li>addresse de couriel: {{user.email}}</li>
+        <li>créé le: {{user.date_creation}}</li>
+        <li>dernière connexion: {{user.last_login}}</li>
+        <li>{{vous êtes: }}</li>
+        <ul>
+        {%for role in roles%}
+                <li>{{role.name}}->{{role.description}}</li>
+        {%endfor%}
+        </ul>
+    </ul>
+</h3>
+{% endblock %}

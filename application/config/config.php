@@ -360,5 +360,13 @@ $config['rewrite_short_tags'] = FALSE;
  */
 $config['proxy_ips'] = '';
 
+/*
+ * Indique quelles module utiliser pour le framework orm.
+ * pour l'instant, uniquement pdo est possible. mais si qqn veut s'ammuser
+ * à utiliser autre chose... par exemple ça : $config['orm_db'] = 'xml';
+ * @author numa
+ */
+$config['orm_db']='pdo';
+
 /* End of file config.php */
 /* Location: ./application/config/config.php */
