@@ -13,6 +13,7 @@ class Pdo_query_builder extends QueryBuilder {
      * indique quels champs de la tables on veut afficher
      * 
      * @param string $fieldsData le nom des champs de la table
+     * @return $this
      */
     public function fields($fieldsData) {
         array_push($this->select, $fieldsData);

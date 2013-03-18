@@ -78,18 +78,18 @@ class Dmo {
             foreach ($loadVars as $name) {
                 $property = $refClass->getProperty($name);
                 if ($property != NULL) {
-                    $property->setAccessible(TRUE);
+                    $refMethod = new ReflectionMethod($object, 'get' . ucfirst($property->getName()));
+                    $value = $refMethod->invoke($object);
                     //comme si dessus et la proprieté doit exister
                     if ($array) {
-                        if ($property->isPrivate() and is_array($property->getValue($object))) {
+                        if ($property->isPrivate() and is_array($value)) {
                             $properties[] = $property;
                         }
                     } else {
-                        if ($property->isPrivate() and is_object($property->getValue($object))) {
+                        if ($property->isPrivate() and is_object($value)) {
                             $properties[] = $property;
                         }
                     }
-                    $property->setAccessible(FALSE);
                 }
             }
         }
@@ -228,7 +228,7 @@ class Dmo {
 
             foreach ($this->_getRelation($this->loadArray, $object) as $property) {
                 //définition de qqe variables utiles
-                $property->setAccessible(TRUE);
+                $refMethod = new ReflectionMethod($object, 'set' . ucfirst($property->getName()));
                 $tableName = $property->getName();
                 $tableNameRelation = $tableName . '_' . $nameEntity;
 
@@ -259,13 +259,12 @@ class Dmo {
 
                 $selectResult = $this->query->select();
                 if (isset($selectResult[0])) {
-                    $property->setValue($object, $selectResult);
+                    $refMethod->invoke($object, $selectResult);
                 } else {
-                    $property->setValue($object, array($selectResult));
+                    $refMethod->invoke($object, array($selectResult));
                 }
 
                 $resLoadedObject = TRUE;
-                $property->setAccessible(false);
             }
 
             //relation en MANY_TO_ONE pas testé!!
@@ -329,10 +328,10 @@ class Dmo {
         $id = $this->query->getDbForge()->getDriver()->getBdd()->lastInsertId();
 
         $entityTableName = $this->query->getDbForge()->getTable($object);
-        $privateProperties = $reflection->getProperties(ReflectionProperty::IS_PRIVATE);        
-        
+        $privateProperties = $reflection->getProperties(ReflectionProperty::IS_PRIVATE);
+
         foreach ($privateProperties as $property) {
-            $refMethod = new ReflectionMethod($object, 'get'.ucfirst($property->getName()));
+            $refMethod = new ReflectionMethod($object, 'get' . ucfirst($property->getName()));
             $value = $refMethod->invoke($object);
             if (!empty($value)) {
 
@@ -379,7 +378,7 @@ class Dmo {
         if (!is_object($object) or $object == NULL) {
             return FALSE;
         }
-        if (empty($id)) {
+        if (empty($id) and isset($object->id)) {
 
             $id = $object->id;
         }
@@ -430,10 +429,11 @@ class Dmo {
         $privateProperties = $reflection->getProperties(ReflectionProperty::IS_PRIVATE);
         $nameEntity = $this->query->getDbForge()->getTable($object);
         foreach ($privateProperties as $property) {
-            $property->setAccessible(TRUE);
+            $refMethod = new ReflectionMethod($object, 'get' . ucfirst($property->getName()));
+            $tabElements = $refMethod->invoke($object);
             $propertyTableName = $property->getName();
-            if (is_array($property->getValue($object))) {
-                $tabElements = $property->getValue($object);
+            
+            if (is_array($tabElements)) {
                 foreach ($tabElements as $value) {
                     if (is_array($value)) {
                         $idProperty = $value['id'];
@@ -460,11 +460,10 @@ class Dmo {
                         $resultat = $this->query->insert();
                     }
                 }
-            } elseif (is_object($property->getValue($object))) {
+            } elseif (is_object($tabElements)) {
                 $this->query->where('id_' . $nameEntity, $id);
-                $this->saveObject($property->getValue($object));
+                $this->saveObject($tabElements);
             }
-            $property->setAccessible(FALSE);
         }
 
         return $resultat == TRUE;

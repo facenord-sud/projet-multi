@@ -11,13 +11,23 @@
         {{css('index.css')}}
     </head>
     <body>
+        {%if user_infos!=false%}
+            <div id="user-infos">
+                <ul>
+                    <li>Bienvenue {{anchor('user/profil', user_infos.username)}}</li>
+                    <li>{{anchor('user/logout', 'Déconnexion')}}</li>
+                    <li>{{anchor('admin/index', 'Administration')}}</li>
+                    <li>{{anchor('pub/index', 'Publication')}}</li>
+                </ul>
+            </div>
+        {%endif%}
         {%block header%}
             <header>
                 <h2>{{anchor('main/index', 'Le Journal')}}</h2>
                 <div id="contact">{{anchor('main/contact','Contact')}}</div>
             </header>
             {%endblock%}
-            
+
             {%block nav%}
             <nav>
                 <ul id="rubrique">
@@ -34,7 +44,7 @@
                 </ul>
             </nav>
             {%endblock%}
-            
+
             {%block main%}
             <div id="main">
                 <div id ="content">
@@ -63,7 +73,7 @@
                 {%endblock%}
                 </div>
             {%endblock%}
-            
+
             {%block footer%}
                 <footer>
                     <address>

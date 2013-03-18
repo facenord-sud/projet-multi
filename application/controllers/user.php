@@ -24,7 +24,7 @@ class User extends MY_Controller {
      * 
      */
     public function index() {
-        if($this->usersession->isConnected()) {
+        if ($this->usersession->isConnected()) {
             redirect('user/profil');
         } else {
             redirect('user/connect');
@@ -36,8 +36,8 @@ class User extends MY_Controller {
      *
      * @param int $id l'id d'un membre
      */
-    public function profil($id=0) {
-        if(empty($id)) {
+    public function profil($id = 0) {
+        if (empty($id)) {
             $id = $this->usersession->getInfos(UserSession::ID);
         }
         $this->dmo->setLoadOptions('role', Dmo::MANY_TO_MANY);
@@ -52,18 +52,18 @@ class User extends MY_Controller {
      * @todo envoi email de confirmation
      */
     public function register() {
-        if($this->usersession->isConnected()) {
+        if ($this->usersession->isConnected()) {
             redirect('main/index');
         }
         $this->load->helper('form');
         $this->load->helper('language');
         $this->load->helper('cookie');
-        
+
         $this->load->library('form_validation');
 
 
         $this->load->model('user/form/user_new_form', 'form');
-        
+
         /*
          * Twiggy
          */
@@ -82,12 +82,10 @@ class User extends MY_Controller {
             $this->user->locked = FALSE;
             $this->user->addRole(array('id' => 1));
             $this->dmo->saveObject($this->user);
-            $this->checkUserActivation($this->user);
-            $this->usersession->register($this->user);
-            set_cookie('remeber_me', $this->user->id, 365 * 24 * 60 * 60);
+            $this->checkConnection();
             $this->session->set_flashdata('new_inscription', TRUE);
             redirect('user/confirm');
-        } 
+        }
     }
 
     public function checkSamePassword($str) {
@@ -117,13 +115,13 @@ class User extends MY_Controller {
         }
         return TRUE;
     }
-    
+
     /**
      * page de confirmation pour une inscriptione réussie
      */
     public function confirm() {
-        if(!$this->session->flashdata('new_inscription')) {
-            redirect(find_uri('main', 'index'));
+        if (!$this->session->flashdata('new_inscription')) {
+            redirect('main/index');
         }
     }
 
@@ -166,6 +164,18 @@ class User extends MY_Controller {
      * gère la connection
      */
     public function checkConnection() {
+       
+
+        if ($this->_connectUser()) {
+            redirectLastPage();
+        } else {
+            $this->usersession->logOut();
+            $this->session->set_flashdata('msg', "Le mot de passe ou le pseudo est faux");
+            redirect('user/connect');
+        }
+    }
+    
+    private function _connectUser() {
         $this->load->helper('cookie');
 
         $this->dmo->setLoadOptions('role', Dmo::MANY_TO_MANY);
@@ -183,11 +193,9 @@ class User extends MY_Controller {
             } else {
                 delete_cookie('remeber_me');
             }
-            redirectLastPage();
+            return TRUE;
         } else {
-            $this->usersession->logOut();
-            $this->session->set_flashdata('msg', "Le mot de passe ou le pseudo est faux");
-            redirect(find_uri('user', 'connect'));
+            return FALSE;
         }
     }
 

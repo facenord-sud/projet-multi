@@ -1,0 +1,5 @@
+{%extends "error/template/index.html.twig"%}
+{%block error_title%}Vous n'avez pas les droits pour accéder à cet page{%endblock%}
+{%block error_text%}Cette page n'est pas accessible avec vos droits actuels ou vous n'êtes pas connecté.
+<br/>{{anchor('user/connect','Connectez-vous')}} ou contactez l'{{anchor('main/contact', 'administrateur')}}.
+{%endblock%}

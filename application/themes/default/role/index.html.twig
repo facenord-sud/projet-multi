@@ -1,0 +1,23 @@
+{%extends _layout%}
+
+{%block content%}
+<h3>Tous les rôles: </h3>
+<ul>
+{%for role in roles%}
+        <li>
+            {{role.nick_name}}
+            <ul>
+                <li>id: {{role.id}}</li>
+                <li>nom public: {{role.name}}</li>
+                <li>description: {{role.description}}</li>
+            </ul>
+                <form action="{{site_url('role/delete')}}/{{role.id}}">
+                <button>Effacer</button>
+                </form>
+        </li>
+{%endfor%}
+        </ul>
+<p>
+    {{form.printForm}}
+</p>
+{%endblock%}

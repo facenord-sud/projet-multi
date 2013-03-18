@@ -76,29 +76,26 @@ class Firewall {
             }
             //mnt on sait que le nom du bundle corresspond au nom du controlleur
             //demandé par l'url
-            //si l'accès à n'importe quels pages chargée par le contrôleur requiert un login
+            //si l'accès  requiert un login
             if ($bundle->attributes->getNamedItem('login')->value != Firewall::LOGIN) {
-                return TRUE;
-            }
-            //mnt on sait que l'utilisateur doit être connecté
 
-            if ($this->user->isConnected()==FALSE) {//si l'utilisateur n'est pas connecté
-                return false;
-            } else {
-                return true;
-            }
-            $users = $bundle->getElementsByTagName('user');
+                //mnt on sait que l'utilisateur doit être connecté
 
-            if (!$this->_hasUserAcces($users)) {
-                return FALSE;
+                if ($this->user->isConnected() == FALSE) {//si l'utilisateur n'est pas connecté
+                    return FALSE;
+                }
+                $users = $bundle->getElementsByTagName('user');
+
+                if (!$this->_hasUserAcces($users)) {
+                    return FALSE;
+                }
             }
 
             //maintenant on sait que l'utilisateur à le droit d'accéder au bundle
             //même principe pour la ou les méthode(si il y en a) du controlleur
-            
+
 
             $methods = $bundle->getElementsByTagName('method');
-
             foreach ($methods as $method) {
 //                echo $method->attributes->getNamedItem('name')->value.' '.$this->method.'<br>';s
                 //détermine si c'est la bonne méthode
@@ -149,8 +146,7 @@ class Firewall {
     }
 
     private function _showErrorNoAcces() {
-        $this->lang->load('errors/firewall');
-        show_error($this->lang->line('user_no_connection_msg'), 401, $this->lang->line('user_no_connection_title'));
+        redirect('error/access');
     }
 
     public function start() {

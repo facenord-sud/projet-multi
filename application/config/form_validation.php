@@ -101,6 +101,23 @@ $config = array(
             'rules' => 'required|min_length[3]'
         ),
     ),
+    'role/index'=>array(
+        array(
+            'field' => 'name',
+            'label' => 'nom public: ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+        array(
+            'field' => 'description',
+            'label' => 'courte description: ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+        array(
+            'field' => 'nick_name',
+            'label' => 'nom administrateur: ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+    ),
     /*
      * Formulaire de contact
      */

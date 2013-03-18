@@ -5,9 +5,9 @@
     <ul>
         <li>pseudo: {{user.username}}</li>
         <li>addresse de couriel: {{user.email}}</li>
-        <li>créé le: {{user.date_creation}}</li>
-        <li>dernière connexion: {{user.last_login}}</li>
-        <li>{{vous êtes: }}</li>
+        <li>créé le: {{user.date_creation | date("d.m.Y à H:m")}}</li>
+        <li>dernière connexion: {{user.last_login | date("d.m.Y à H:m")}}</li>
+        <li>vous êtes: </li>
         <ul>
         {%for role in roles%}
                 <li>{{role.name}}->{{role.description}}</li>
