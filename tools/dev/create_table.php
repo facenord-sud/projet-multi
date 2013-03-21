@@ -120,7 +120,7 @@ foreach ($dir as $file) {
         }
     }
 }
-if (!$create or !$mtm) {
+if (!$create and !$mtm) {
     echo "Toutes les tables sont à jour\n";
     return;
 }

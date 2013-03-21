@@ -3,5 +3,12 @@
 
 {%block content%}
 <h3>Gestion des rubriques et sous-rubriques</h3>
-<h4>Choisissez une rubrique: </h4>
+<h4>Créer, modifiez ou supprimer une rubrique: </h4>
+{%for rub in rubriques%}
+    {{anchor('rubrique/modify/'~rub.id, rub.name)}}
+    <form method = "get" action="{{site_url('rubrique/delete/'~rub.id)}}">
+        <button type="submit">Supprimer</button>
+    </form>
+{%endfor%}
+{{form.printForm}}
 {%endblock%}

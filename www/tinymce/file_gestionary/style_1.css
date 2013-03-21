@@ -1,0 +1,35 @@
+/* On centre le gestionnaire, lui donne une couleur de fond, une police, ... */
+body {
+	width: 700px;
+	margin: auto;
+	background-color: #6FA5A5;
+	color: #000;
+	font-family: tahoma, calibri, verdana, arial, serif, sans-serif;
+	font-size: 0.8em;
+}
+/* Les différents champs et boutons */
+input {
+	padding: 2px;
+	margin: 2px;
+	border: 1px solid #235D5D;
+}
+/* Les liens*/
+a, a:visited {
+	color: #000;
+	text-decoration: none;
+}
+/* Les cases du tableau */
+td {
+	background-color: #91B9B9;
+	border: 1px solid #235D5D;
+	padding: 2px;
+}
+/* Le titre */
+h1 {
+	text-align: center;
+	text-decoration: underline;
+}
+/* La colonne qui contiendra la taille de chaque fichier devra être alignée à droite */
+.taille {
+	text-align: right;
+}

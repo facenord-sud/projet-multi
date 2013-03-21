@@ -57,21 +57,21 @@ class Dmo {
         $properties = array();
 
         //si on demande de charger tous les tableaux d'une classe
-        if ($loadVars == self::ALL_FIELDS) {
+        if ($loadVars[0] == self::ALL_FIELDS) {
             $allProperties = $refClass->getProperties(ReflectionProperty::IS_PRIVATE);
             foreach ($allProperties as $property) {
-                $property->setAccessible(TRUE);
+                $refMethod = new ReflectionMethod($object, 'get' . ucfirst($property->getName()));
+                    $value = $refMethod->invoke($object);
                 //seulement les tableaux privé (convention)
                 if ($array) {
-                    if (is_array($property->getValue($object))) {
+                    if (is_array($value)) {
                         $properties[] = $property;
                     }
                 } else {
-                    if (is_object($property->getValue($object))) {
+                    if (is_object($value)) {
                         $properties[] = $property;
                     }
                 }
-                $property->setAccessible(FALSE);
             }
             //sinon ceux indiqués
         } else {
@@ -106,7 +106,7 @@ class Dmo {
             if (is_array($fields)) {
                 $this->loadArray = array_merge($this->loadArray, $fields);
             } else if ($fields == self::ALL_FIELDS) {
-                $this->loadArray = self::ALL_FIELDS;
+                $this->loadArray = array(self::ALL_FIELDS);
             } else {
                 array_push($this->loadArray, $fields);
             }
@@ -150,16 +150,15 @@ class Dmo {
         $resultat = $this->query->delete();
         $privateProperties = array_merge($this->_getRelation($this->loadArray, $object, TRUE), $this->_getRelation($this->loadArray, $object, FALSE));
         foreach ($privateProperties as $property) {
-            $property->setAccessible(TRUE);
+            $refMethod = new ReflectionMethod($object, 'get' . ucfirst($property->getName()));
+            $propertyValue = $refMethod->invoke($object);
             $entityTableName = $this->query->getDbForge()->getTable($object);
             $propertyTableName = $property->getName() . '_' . $entityTableName;
-            $propertyValue = $property->getValue($object);
             if (is_object($propertyValue)) {
                 $this->query->setTableName($property->getName());
                 $this->query->where($entityTableName . '_id', $id);
                 $resultat = $this->query->delete();
             } elseif (is_array($propertyValue)) {
-                print_r($propertyValue);
                 foreach ($propertyValue as $valueArrayProperty) {
                     if (is_object($valueArrayProperty) and isset($valueArrayProperty->id)) {
                         $idValue = $valueArrayProperty->id;
@@ -175,7 +174,6 @@ class Dmo {
                     $resultat = $this->query->delete();
                 }
             }
-            $property->setAccessible(FALSE);
         }
 
         return $resultat == TRUE;
@@ -250,7 +248,7 @@ class Dmo {
                 $this->query->join($nameEntity, $leftEquality, $rightEquality);
 
                 //on recupère à partir de l'id de l'entité
-                $this->query->where('user.id', $id, 'AND', '=', TRUE);
+                $this->query->where($nameEntity.'.id', $id, 'AND', '=', TRUE);
 
 
 
@@ -271,7 +269,6 @@ class Dmo {
             if (!empty($this->loadClass)) {
                 foreach ($this->_getRelation($this->loadClass, $object, FALSE) as $property) {
 
-                    $property->setAccessible(TRUE);
                     $tableName = $property->getName();
 
                     $this->query->flushQuery();
@@ -284,7 +281,6 @@ class Dmo {
 
                     $property->setValue($object, $this->query->select());
 
-                    $property->setAccessible(FALSE);
                 }
             }
         }
@@ -326,6 +322,7 @@ class Dmo {
         }
         $resultat = $this->query->insert();
         $id = $this->query->getDbForge()->getDriver()->getBdd()->lastInsertId();
+        $object->id = $id;
 
         $entityTableName = $this->query->getDbForge()->getTable($object);
         $privateProperties = $reflection->getProperties(ReflectionProperty::IS_PRIVATE);

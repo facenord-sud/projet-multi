@@ -1,0 +1,14 @@
+{%extends _layout%}
+
+{%block content%}
+{{articles}}
+<h3>Tous les articles</h3>
+<table>
+{% for article in articles %}
+        <tr>
+            <td>article.titre</td>
+            <td>article.description</td>
+        </tr>
+{%endfor%}
+        </table>
+{%endblock%}

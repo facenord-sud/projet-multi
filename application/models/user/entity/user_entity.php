@@ -127,22 +127,6 @@ class User_entity {
         array_pop($this->role, $role);
     }
 
-    public function addPoints($points) {
-        if ($points < 0) {
-            log_message('error', 'utiliser removePoints() pour soustraire des points');
-            return;
-        }
-        $this->points = $this->points + $points;
-    }
-
-    public function removePoints($points) {
-        if ($points >= $this->points) {
-            $this->points = $this->points - $points;
-        } else {
-            log_message('error', 'le nombre de points ne peut pas être négatif');
-        }
-    }
-
     public function setId($id) {
         $this->id = $id;
     }

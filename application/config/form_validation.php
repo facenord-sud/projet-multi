@@ -118,6 +118,52 @@ $config = array(
             'rules' => 'required|min_length[3]|max_length[255]'
         ),
     ),
+    'rubrique/changeName'=>array(
+        array(
+            'field' => 'name_rubrique',
+            'label' => 'nouveau nom: ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+        array(
+            'field' => 'description',
+            'label' => 'description de la rubrique: ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+    ),
+    'rubrique/add_sub'=>array(
+        array(
+            'field' => 'name',
+            'label' => 'nom: ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+        array(
+            'field' => 'description',
+            'label' => 'courte description: ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+    ),
+    'article/edit'=>array(
+        array(
+            'field' => 'titre',
+            'label' => 'titre ',
+            'rules' => 'required|min_length[3]|max_length[255]'
+        ),
+        array(
+            'field' => 'description',
+            'label' => 'description de la rubrique',
+            'rules' => 'min_length[10]|max_length[200]'
+        ),
+        array(
+            'field' => 'key_word',
+            'label' => 'mots-clés',
+            'rules' => 'required|min_length[7]|max_length[255]'
+        ),
+        array(
+            'field' => 'chapo',
+            'label' => 'en-tête',
+            'rules' => 'required|min_length[50]|max_length[255]'
+        ),
+    ),
     /*
      * Formulaire de contact
      */

@@ -1,0 +1,24 @@
+{%extends _layout%}
+
+
+{%block content%}
+<h4>{{anchor('rubrique/admin', 'menu des rubriques')}}</h4>
+<h3>Gestion de la rubrique {{rubrique.name}}:</h3>
+{{form_change.printForm}}
+<h4>Sous-rubriques</h4>
+<ul>
+{%for sub_rubrique in rubrique.getSub_rubrique%}
+        <li>nom: {{sub_rubrique.name}}   déscripton: {{sub_rubrique.description}}
+            <form action = "{{site_url('rubrique/delete_sub/'~rubrique.id~'/'~sub_rubrique.id)}}">
+                <button type = "submit">supprimer</button>
+            </form>
+            <form action = "{{site_url('rubrique/modify_sub/'~rubrique.id~'/'~sub_rubrique.id)}}">
+                <button type = "submit">modifier</button>
+            </form>
+        </li>
+{%endfor%}
+    </ul>
+    <form action = "{{site_url('rubrique/add_sub/'~rubrique.id)}}">
+        <button type = "submit">Nouvelle sous-rubrique</button>
+    </form>
+{%endblock%}
