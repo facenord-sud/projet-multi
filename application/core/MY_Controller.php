@@ -18,10 +18,9 @@ class MY_Controller extends CI_Controller {
         $this->load->spark('Twiggy/0.8.5');
 
         $this->twiggy->title('Le magazine des étudiants');
-        $this->_remeberMe();
         $this->twiggy->set('false', FALSE);
         $this->twiggy->set('user_infos', $this->usersession->getAllUserInfos());
-        
+        $this->_remeberMe();
     }
 
     private function _remeberMe() {
@@ -35,7 +34,6 @@ class MY_Controller extends CI_Controller {
         }
         $this->load->model('user/entity/user_entity', 'user');
         $this->load->orm();
-        $this->dmo->setLoadOptions(Dmo::ALL_FIELDS, Dmo::MANY_TO_MANY);
         $this->dmo->loadObject($this->user, $cookie);
         if (!$this->user) {
             return;

@@ -1,13 +1,16 @@
 <?php
 
-require_once APPPATH.'/models/article/entity/article_entity.php';
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
 /**
  * Description of rubrique_entity
  *
  * @author leo
  */
 class Rubrique_entity {
-    
     /**
      * L'id de la rubrique
      * 
@@ -39,15 +42,6 @@ class Rubrique_entity {
     public $description = '';
     
     /**
-     * le nom url
-     * 
-     * @Type("varchar(255)")
-     * 
-     * @var string
-     */
-    public $url_name = '';
-    
-    /**
      * les sous-rubriques
      * 
      * @Relation("MTM")
@@ -56,27 +50,12 @@ class Rubrique_entity {
      */
     private $sub_rubrique = array();
     
-    /**
-     * l'article en une de la rubrique
-     * 
-     * @Type("int(11)")
-     * 
-     * @var Article_entity
-     */
-    public $article_une = 0;
-    
-    
     public function getSub_rubrique() {
         return $this->sub_rubrique;
     }
 
     public function setSub_rubrique($sub_rubrique) {
         $this->sub_rubrique = $sub_rubrique;
-    }
-    
-    public function addSub_rubrique($sub_rubrique) {
-        array_push($this->sub_rubrique, $sub_rubrique);
-        
     }
 
 }

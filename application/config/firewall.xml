@@ -6,6 +6,7 @@
         <bundle name="admin" login="true">
             <users>
                 <user id="2" name="admin"/>
+                <user id="10" name="pub"/>
                 <user id="11" name="participants"/>
             </users>
         </bundle>
@@ -14,17 +15,15 @@
                 <user id="2" name="admin"/>
             </users>
         </bundle>
-        <bundle name="publish" login="true">
-            <users>
-                <user id="2" name="admin"/>
-                <user id="11" name="participants"/>
-            </users>
-        </bundle>
-        <bundle name="rubrique" login="true">
-            <users>
-                <user id="2" name="admin"/>
-                <user id="11" name="participants"/>
-            </users>
+        <bundle name="rubrique" login="false">
+           <methods><!--les méthodes pour les quels pas n'importe quel utilisateur peut accéder-->
+                <method name="admin" login="true">
+                    <users>
+                        <user id="2" name="admin"/>
+                        <user id="11" name="participants"/>
+                    </users>
+                </method>
+            </methods>
         </bundle>
     </bundles>
 </firewall>

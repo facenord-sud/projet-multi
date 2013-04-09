@@ -1,19 +1,10 @@
 {%extends _layout%}
 
+{%block nav%}{%endblock%}
+
 {%block content%}
-<section id="une">
-    <h3>La premier titre</h3>
-    {{img('smarthphone.jpg')}}
-    <article>
-        lorem ipsume et dolorem. L'image est juste là pour tester
-    </article>
-</section>
-<section class="sous-rubrique">
-    <h4>
-        Le deuxième titre
-    </h4>
-    <article>
-        Il est moin simportant et ne comporte pas d'image
-    </article>
-</section>
+<p>La page d'accueil du site. A voir comment on la fait. Comme une "une" de journal?</p>
+<p>{{anchor('rubrique/index', 'Entrer dans le site')}}</p>
 {%endblock%}
+{%block aside%}{%endblock%}
+{%block footer%}{%endblock%}

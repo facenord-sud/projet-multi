@@ -76,11 +76,9 @@ class Firewall {
             }
             //mnt on sait que le nom du bundle corresspond au nom du controlleur
             //demandé par l'url
-
-            $methods = $bundle->getElementsByTagName('method');
-            
             //si l'accès  requiert un login
-            if ($bundle->attributes->getNamedItem('login')->value == Firewall::LOGIN) {
+            if ($bundle->attributes->getNamedItem('login')->value != Firewall::LOGIN) {
+
                 //mnt on sait que l'utilisateur doit être connecté
 
                 if ($this->user->isConnected() == FALSE) {//si l'utilisateur n'est pas connecté
@@ -88,7 +86,7 @@ class Firewall {
                 }
                 $users = $bundle->getElementsByTagName('user');
 
-                if (!$this->_hasUserAcces($users) and empty($methods)) {
+                if (!$this->_hasUserAcces($users)) {
                     return FALSE;
                 }
             }
@@ -97,7 +95,7 @@ class Firewall {
             //même principe pour la ou les méthode(si il y en a) du controlleur
 
 
-            
+            $methods = $bundle->getElementsByTagName('method');
             foreach ($methods as $method) {
 //                echo $method->attributes->getNamedItem('name')->value.' '.$this->method.'<br>';s
                 //détermine si c'est la bonne méthode
@@ -113,7 +111,7 @@ class Firewall {
             }
         }//fin du for
 
-        return TRUE; // tout c'est bien passé, l'utilisateur à le droit de voir 
+        return true; // tout c'est bien passé, l'utilisateur à le droit de voir 
         //la page affiché par la méthode et le controlleur demandé.
     }
 

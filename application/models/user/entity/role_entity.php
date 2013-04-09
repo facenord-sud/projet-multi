@@ -15,7 +15,7 @@ class Role_entity{
     public $id;
     
     /**
-     * @Type("varchar(255)")
+     * @Type("int(11)")
      * 
      * @var string 
      */
