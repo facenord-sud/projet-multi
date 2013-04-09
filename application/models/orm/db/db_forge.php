@@ -38,6 +38,14 @@ abstract class DbForge {
         }
         return str_replace('_entity', '', strtolower($object));
     }
+    
+    /**
+     * Ca va chercher le nom de table de traduction
+     * @return string
+     */
+    public function getTableLang($table) {
+        return $table . '_lang';
+    }
 
 }
 

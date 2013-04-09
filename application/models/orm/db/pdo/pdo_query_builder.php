@@ -12,11 +12,23 @@ class Pdo_query_builder extends QueryBuilder {
     /**
      * indique quels champs de la tables on veut afficher
      * 
-     * @param string $fieldsData le nom des champs de la table
      * @return $this
+     * @param string $fieldsData le nom des champs de la table
      */
-    public function fields($fieldsData) {
-        array_push($this->select, $fieldsData);
+    public function fields($fieldsData, $otherTableName = FALSE) {
+        if (is_array($fieldsData)) {
+            if (!$otherTableName) {
+                $this->select['main_table'] = array_merge($this->select['main_table'], $fieldsData);
+            } else {
+                $this->select['other_tables'] = array_merge($this->select['other_tables'], $fieldsData);
+            }
+        } else {
+            if (!$otherTableName) {
+                array_push($this->select['main_table'], $fieldsData);
+            } else {
+                array_push($this->select['other_tables'], $fieldsData);
+            }
+        }
         return $this;
     }
 
@@ -31,13 +43,13 @@ class Pdo_query_builder extends QueryBuilder {
      * @return void
      */
     public function where($name, $var, $op = 'AND', $rel = '=', $noTable = FALSE) {
-        $name = (string) $name;
         if ($noTable) {
             $this->whereVars[str_replace('.', '_', $name)] = $var;
         } else {
             $this->whereVars[$name] = $var;
         }
         array_push($this->where, array('name' => $name, 'var' => $var, 'op' => $op, 'rel' => $rel, 'no_table' => $noTable));
+//        print_r($this->where);
         return $this;
     }
 
@@ -52,7 +64,7 @@ class Pdo_query_builder extends QueryBuilder {
      * @param string $join le type de jointure (INNER, LEFTm ...)
      * @param string $rel la relation (= >= etc)
      */
-    public function join($tableName, $leftEquality, $rightEquality, $join = 'INNER', $rel = '=') {
+    public function join($tableName, $leftEquality, $rightEquality, $join = 'LEFT', $rel = '=') {
         if (is_array($rightEquality)) {
             $this->rightEqualityValues[$rightEquality] = $rightEquality;
             $rightEquality = ':' . $rightEquality;
@@ -86,6 +98,7 @@ class Pdo_query_builder extends QueryBuilder {
     /**
      * Crée la partie UPDATE de la requête. Si des tableaux sont passés en paramètre,
      * équivalent à plusieurs appels de cet méthode
+     * @todo le nom de la table devant chaque champs ?
      * @param string ou mixed $field le nom du champ à mettre à jour
      * @param string ou array $var la valeure du champ à mettre à jour
      */
@@ -126,8 +139,40 @@ class Pdo_query_builder extends QueryBuilder {
         if ($entity != NULL and is_object($entity)) {
             $this->setTableName($this->dbForge->getTable($entity));
         }
+        if (!empty($this->language) and $this->dbForge->isTable($this->dbForge->getTableLang($this->tableName))) {
+            $tableLang = $this->dbForge->getTableLang($this->tableName);
+            $fieldsTableLang = $this->dbForge->getFields($tableLang);
+            $fields = '';
+            $insertFieldsLang = array();
+            $vars = '';
+            $tempFields = explode(', ', $this->insertFields);
+            $tempVars = explode(', ', $this->insertVars);
+            foreach ($this->insertValue as $nameField => $valueField) {
+                if (in_array($nameField, $fieldsTableLang)) {
+                    $fields.="$nameField, ";
+                    $vars.=":$nameField, ";
+                    $insertFieldsLang[$nameField] = $valueField;
+                    var_dump($valueField);
+                    unset($this->insertValue[$nameField]);
+                    unset($tempFields[array_keys($tempFields, $nameField)[0]]);
+                    unset($tempVars[array_keys($tempVars, ":$nameField")[0]]);
+                }
+            }
+            $this->insertVars = implode(', ', $tempVars);
+            $this->insertFields = implode(', ', $tempFields);
+        }
+
         $this->getInsert();
         $insertRes = $this->dbForge->getDriver()->execute($this->query, $this->insertValue);
+
+        if (isset($fields)) {
+            $fields .= 'language, reference, ';
+            $vars .= ':language, :reference, ';
+            $insertFieldsLang['language'] = $this->getLangId($this->language);
+            $insertFieldsLang['reference'] = $this->dbForge->getDriver()->getBdd()->lastInsertId();
+            $query = "INSERT INTO $tableLang (" . substr($fields, 0, -2) . ") VALUES (" . substr($vars, 0, -2) . ");";
+            $this->dbForge->getDriver()->execute($query, $insertFieldsLang);
+        }
         $this->flushQuery();
         return $insertRes;
     }
@@ -168,10 +213,21 @@ class Pdo_query_builder extends QueryBuilder {
      * @return string une requête SQL
      */
     public function getDelete() {
+        $this->query = '';
+        if (!empty($this->language)) {
+            if ($this->dbForge->isTable($this->dbForge->getTableLang($this->tableName))) {
+                if (empty($this->whereVars)) {
+                    $this->query = "DELETE FROM " . $this->dbForge->getTableLang($this->tableName) . ";";
+                } else {
+                    $this->query = "DELETE FROM " . $this->dbForge->getTableLang($this->tableName) . " WHERE reference = :reference;";
+                    $this->whereVars['reference'] = $this->findReferenceLang();
+                }
+            }
+        }
         if (empty($this->whereVars)) {
-            $this->query = "DELETE FROM $this->tableName";
+            $this->query .= "DELETE FROM $this->tableName;";
         } else {
-            $this->query = "DELETE FROM $this->tableName WHERE " . $this->getWhere();
+            $this->query .= "DELETE FROM $this->tableName WHERE " . $this->getWhere() . ';';
         }
         return $this->query;
     }
@@ -182,7 +238,7 @@ class Pdo_query_builder extends QueryBuilder {
      * @return string une requête SQL
      */
     public function getInsert() {
-        $this->query = "INSERT INTO $this->tableName (" . substr($this->insertFields, 0, -2) . ") VALUES (" . substr($this->insertVars, 0, -2) . ')';
+        $this->query = "INSERT INTO $this->tableName (" . substr($this->insertFields, 0, -2) . ") VALUES (" . substr($this->insertVars, 0, -2) . ');';
         return $this->query;
     }
 
@@ -192,6 +248,33 @@ class Pdo_query_builder extends QueryBuilder {
      * @return string une requête SQL
      */
     public function getSelect() {
+        if (!empty($this->language)) {
+            $tableLang = $this->dbForge->getTableLang($this->tableName);
+
+            $fieldsTableLang = $this->dbForge->getFields($tableLang);
+
+            if ($this->getFields() == '*') {
+                $this->select = array('main_table' => array(), 'other_tables' => array());
+                $this->fields($fieldsTableLang, TRUE);
+                $this->fields($this->dbForge->getFields($this->tableName));
+            }
+
+            //@TODO: réfléchir qu'est-ce qui prend le moins de temps ?
+            foreach ($this->select['main_table'] as $field) {
+                if($field=='id') {
+                    continue;
+                }
+                if (in_array($field, $fieldsTableLang)) {
+                    $this->fields("$tableLang.$field", TRUE);
+                    $key = array_search($field, $this->select['main_table']);
+                    unset($this->select['main_table'][$key]);
+                }
+            }
+
+            $this->join($tableLang, $this->tableName . '.id', "$tableLang.reference");
+            $this->join('language', "$tableLang.language", 'language.id');
+            $this->where('language.id', $this->getLangId($this->language), 'AND', '=', TRUE);
+        }
         if (empty($this->whereVars)) {
             $this->query = "SELECT " . $this->getFields() . " FROM $this->tableName " . $this->joinON;
         } else {
@@ -206,10 +289,36 @@ class Pdo_query_builder extends QueryBuilder {
      * @return string une requête SQL
      */
     public function getUpdate() {
+        $this->query = '';
+        if (!empty($this->language)) {
+            $tableLang = $this->dbForge->getTableLang($this->tableName);
+
+            $fieldsTableLang = $this->dbForge->getFields($tableLang);
+            $values = array();
+            $set = '';
+            $tempFields = explode(', ', $this->update);
+            foreach ($this->updateValue as $fieldName => $fieldValue) {
+                if (in_array($fieldName, $fieldsTableLang)) {
+                    $values[$fieldName] = $fieldValue;
+                    $set.="$fieldName=:$fieldName, ";
+                    unset($this->updateValue[$fieldName]);
+                    unset($tempFields[array_keys($tempFields, "$fieldName=:$fieldName")[0]]);
+                }
+            }
+            $this->update = implode(', ', $tempFields);
+            $this->join($tableLang, $this->tableName . '.id', "$tableLang.reference");
+            $this->join('language', "$tableLang.language", 'language.id');
+
+            $this->query = "UPDATE $tableLang $this->joinON, SET " . substr($set, 0, -2);
+            if (!empty($this->whereVars)) {
+                $this->where('language.id', $this->getLangId($this->language), 'AND', '=', TRUE);
+                $this->query.=" WHERE " . $this->getWhere() . ';';
+            }
+        }
         if (empty($this->whereVars)) {
-            $this->query = "UPDATE $this->tableName SET ".substr($this->update, 0, -2);
+            $this->query .= "UPDATE $this->tableName $this->joinON SET " . substr($this->update, 0, -2) . ';';
         } else {
-            $this->query = "UPDATE $this->tableName SET ".substr($this->update, 0, -2)." WHERE " . $this->getWhere();
+            $this->query .= "UPDATE $this->tableName $this->joinON SET " . substr($this->update, 0, -2) . " WHERE " . $this->getWhere() . ';';
         }
         return $this->query;
     }
@@ -248,7 +357,7 @@ class Pdo_query_builder extends QueryBuilder {
                 $whereTableName = $this->tableName . "." . $where['name'];
                 $relRight = $where['name'];
             }
-            $whereClause.=$whereTableName . " " . $where['rel'] . " :" . $relRight . " " . $where['op']." ";
+            $whereClause.=$whereTableName . " " . $where['rel'] . " :" . $relRight . " " . $where['op'] . " ";
         };
         return substr($whereClause, 0, -4);
     }
@@ -259,27 +368,25 @@ class Pdo_query_builder extends QueryBuilder {
      * de la table user
      * 
      * @author leo
-     * @test pas fait
+     * @test fait
      * @return string le ou les fields
      */
     protected function getFields() {
         $fields = '';
-        foreach ($this->select as $field) {
-            if (is_array($field)) {
-                foreach ($field as $subField) {
-                    if ((string) $subField == "*") {
-                        return '*';
-                    } else {
-                        $fields.="$this->tableName.$subField, ";
-                    }
-                }
-            } else if (is_string($field)) {
-                if ($field == '*') {
-                    return '*';
-                    break;
-                } else {
-                    $fields .= "$this->tableName.$field, ";
-                }
+        foreach ($this->select['main_table'] as $field) {
+            if ($field == '*') {
+                return '*';
+                break;
+            } else {
+                $fields .= "$this->tableName.$field, ";
+            }
+        }
+        foreach ($this->select['other_tables'] as $field) {
+            if ($field == '*') {
+                return '*';
+                break;
+            } else {
+                $fields .= "$field, ";
             }
         }
         if (empty($fields)) {
@@ -287,6 +394,32 @@ class Pdo_query_builder extends QueryBuilder {
         }
 
         return substr($fields, 0, -2);
+    }
+
+    /**
+     * Permet de récupérer l'id de la langue grâce à l'iso de celle-ci
+     * 
+     * @param $iso iso de la langue
+     *
+     * @return int
+     */
+    public function getLangId($iso) {
+        $sql = 'SELECT id FROM language WHERE lang = :iso';
+        $var = array('iso' => $iso);
+        $req = $this->dbForge->getDriver()->execute($sql, $var);
+        return $req['id'];
+    }
+
+    public function findReferenceLang() {
+        $query = "SELECT $this->tableName.id FROM $this->tableName WHERE " . $this->getWhere();
+        return $this->dbForge->getDriver()->execute($query, $this->getWhereVars())['id'];
+    }
+    
+    public function getIdiom($iso) {
+        $sql = 'SELECT language FROM language WHERE lang = :iso';
+        $var = array('iso' => $iso);
+        $req = $this->dbForge->getDriver()->execute($sql, $var);
+        return $req['language'];
     }
 
 }

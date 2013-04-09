@@ -42,9 +42,7 @@ abstract class DbDriver {
      * récupère les infos de connexion dans le fichier et se connect à la bonne bdd
      */
     public function __construct() {
-        $CI =& get_instance();
-        $CI->load->database();
-        $configDb = $CI->db;
+        $configDb = & get_instance()->db;
         $this->host = $configDb->hostname;
         $this->bddName = $configDb->database;
         $this->user = $configDb->username;

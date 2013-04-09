@@ -37,9 +37,9 @@ class Pdo_driver extends DbDriver {
      */
     public function execute($query, $data = array(), $object = NULL, $fetchMode = PDO::FETCH_ASSOC) {
         try {
-//            echo '<br>'.$query;
-//            print_r($data);
-//            echo '<br>';
+            echo '<br>'.$query;
+            print_r($data);
+            echo '<br>';
             if (empty($data)) {
                 $req = $this->getBdd()->query($query);
             } else {

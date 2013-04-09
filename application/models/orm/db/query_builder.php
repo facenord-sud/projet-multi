@@ -8,12 +8,12 @@
  * @author leo
  */
 abstract class QueryBuilder {
-   
+
     /**
      *
      * @var String contient la parite select de la requête
      */
-    protected $select = array();
+    protected $select = array('main_table' => array(), 'other_tables' => array());
 
     /**
      *
@@ -38,62 +38,66 @@ abstract class QueryBuilder {
      * @var String le nom de la table
      */
     protected $tableName = '';
-    
+
     /**
      *
      * @var string le nom des champs de la table que l'on veut insérer 
      */
     protected $insertVars = '';
-    
+
     /**
      *
      * @var array les valeures à utiliser pour une requête INSERT 
      */
     protected $insertValue = array();
-    
+
     /**
      *
      * @var string le nom des champs pour une requête INSERT 
      */
     protected $insertFields = '';
-    
+
     /**
      *
      * @var string le nom des champs pour une requête UPDATE 
      */
     protected $update = '';
-    
+
     /**
      *
      * @var array les valeures à utiliser pour une requête UPDATE 
      */
     protected $updateValue = array();
-    
+
     /**
      *
      * @var DbForge la classe qui gère les rapports avec les tables 
      */
     protected $dbForge = NULL;
-    
+
     /**
      *
      * @var boolean pour savoir si il faut mémoriser le nom de la table entre deux requêtes
      */
     protected $keepTableName = FALSE;
-    
+
     /**
      *
      * @var string contient la partie de la requête avec des jointures 
      */
     protected $joinON = '';
-    
+
     /**
      *
      * @var arrray pour si on veut utiliser des valeures peut-être corrompues dans un JOIN 
      */
     protected $rightEqualityValues = array();
 
-
+    /**
+     *
+     * @var string définit quel champs de la table en fonction de la langue aller chercher.
+     */
+    protected $language = '';
 
     /**
      * initialise les variables avec les bonnes valeures
@@ -107,20 +111,20 @@ abstract class QueryBuilder {
     /**
      * pour enregistrer les données de la partie WHERE de la requête
      */
-    public abstract function where($name, $var, $op = '', $rel = '=', $noTable=FALSE);
-    
+    public abstract function where($name, $var, $op = '', $rel = '=', $noTable = FALSE);
+
     /**
      * pour retourner la partie WHERE de la requête
      */
     protected abstract function getWhere();
-    
+
     /**
      * retourner la partie des champs séléctioné de la requête ie: ...user.id, user.username...
      */
     protected abstract function getFields();
 
     /**
-     * 
+     * @return $this
      */
     public abstract function fields($fieldsData);
 
@@ -143,8 +147,12 @@ abstract class QueryBuilder {
     public abstract function getUpdate();
 
     public abstract function getDelete();
+
+    public abstract function join($tableName, $leftEquality, $rightEquality, $join = 'LEFT', $rel = '=');
+
+    public abstract function getLangId($iso);
     
-    public abstract function join($tableName, $leftEquality, $rightEquality, $join = 'INNER', $rel = '=');
+    public abstract function findReferenceLang();
 
     /**
      * 
@@ -197,6 +205,7 @@ abstract class QueryBuilder {
      * accesseur
      * @return la requête
      */
+
     public function getQuery() {
         return $this->query;
     }
@@ -229,7 +238,7 @@ abstract class QueryBuilder {
      * réinitialise tous les champs pour créer une nouvelle requête
      */
     public function flushQuery() {
-        $this->select = array();
+        $this->select = array('main_table' => array(), 'other_tables' => array());
         $this->where = array();
         $this->query = '';
         $this->whereVars = array();
@@ -239,8 +248,9 @@ abstract class QueryBuilder {
         $this->updateValue = array();
         $this->query = '';
         $this->joinON = '';
-        $this->insertFields='';
+        $this->insertFields = '';
         $this->rightEqualityValues = array();
+        $this->language = '';
         if (!$this->isTableNameKepped()) {
             $this->tableName = '';
         }
@@ -253,7 +263,7 @@ abstract class QueryBuilder {
     public function setKeepTableName($keepTableName) {
         $this->keepTableName = $keepTableName;
     }
-    
+
     public function getInsertValue() {
         return $this->insertValue;
     }
@@ -265,11 +275,18 @@ abstract class QueryBuilder {
     public function isNoFields() {
         return empty($this->select);
     }
-    
+
     public function isEmptyWhereClause() {
         return empty($this->whereVars);
     }
+    
+    public function getLanguage() {
+        return $this->language;
+    }
 
+    public function setLanguage($language) {
+        $this->language = $language;
+    }
 }
 
 ?>
